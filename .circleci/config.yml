@@ -3,15 +3,14 @@ jobs:
   test:
     docker:
       - image: circleci/golang:1.16
-
-  steps:
-    - checkout
-    - restore_cache:
-        keys:
-          - go-mod-v4-{{ checksum "go.sum" }}
-    - run:
-        name: Run unit tests
-        command: go test -v ./...
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Run unit tests
+          command: go test -v ./...
 
 workflows:
   version: 2
