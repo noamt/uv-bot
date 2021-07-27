@@ -11,6 +11,10 @@ jobs:
       - run:
           name: Run unit tests
           command: go test -v ./...
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
 
 workflows:
   version: 2
