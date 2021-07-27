@@ -3,9 +3,14 @@ package uv
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/dghubble/go-twitter/twitter"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 var latestIndexForLocation = map[string]float32{}
@@ -133,13 +138,45 @@ type MeasurementReporter interface {
 type STDOutMeasurementReporter struct{}
 
 func (measurementReporter *STDOutMeasurementReporter) Report(locationToReport *Location, uvIndex float32) error {
-	alerts := AltertsByLocation[locationToReport.DisplayName]
-	if uvIndex < 3.0 {
-		fmt.Println(alerts.Low(uvIndex))
-	} else if uvIndex < 8.0 {
-		fmt.Println(alerts.Moderate(uvIndex))
-	} else {
-		fmt.Println(alerts.High(uvIndex))
+	alert := getAlert(locationToReport, uvIndex)
+	fmt.Println(alert)
+	return nil
+}
+
+func NewTwitterMeasurementReporter(consumerKey string, consumerSecret string) *TwitterMeasurementReporter {
+	config := &clientcredentials.Config{
+		ClientID:     consumerKey,
+		ClientSecret: consumerKey,
+		TokenURL:     "https://api.twitter.com/oauth2/token",
+	}
+	httpClient := config.Client(oauth2.NoContext)
+	client := twitter.NewClient(httpClient)
+	return &TwitterMeasurementReporter{client: client}
+}
+
+type TwitterMeasurementReporter struct {
+	client *twitter.Client
+}
+
+func (t *TwitterMeasurementReporter) Report(locationToReport *Location, uvIndex float32) error {
+	alert := getAlert(locationToReport, uvIndex)
+	_, response, tweetError := t.client.Statuses.Update(alert, nil)
+	if tweetError != nil {
+		return fmt.Errorf("failed to tweet '%s': %w", alert, tweetError)
+	}
+	if response.StatusCode >= http.StatusBadRequest {
+		body, _ := ioutil.ReadAll(response.Body)
+		return fmt.Errorf("failed to tweet '%s'. Response code: %d. Body: %s", alert, response.StatusCode, string(body))
 	}
 	return nil
+}
+
+func getAlert(locationToReport *Location, uvIndex float32) string {
+	alerts := AltertsByLocation[locationToReport.DisplayName]
+	if uvIndex < 3.0 {
+		return alerts.Low(uvIndex)
+	} else if uvIndex < 8.0 {
+		return alerts.Moderate(uvIndex)
+	}
+	return alerts.High(uvIndex)
 }
