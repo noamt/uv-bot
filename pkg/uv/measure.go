@@ -146,7 +146,7 @@ func (measurementReporter *STDOutMeasurementReporter) Report(locationToReport *L
 func NewTwitterMeasurementReporter(consumerKey string, consumerSecret string) *TwitterMeasurementReporter {
 	config := &clientcredentials.Config{
 		ClientID:     consumerKey,
-		ClientSecret: consumerKey,
+		ClientSecret: consumerSecret,
 		TokenURL:     "https://api.twitter.com/oauth2/token",
 	}
 	httpClient := config.Client(oauth2.NoContext)
