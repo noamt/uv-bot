@@ -9,8 +9,7 @@ import (
 	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
+	"github.com/dghubble/oauth1"
 )
 
 var latestIndexForLocation = map[string]float32{}
@@ -143,15 +142,19 @@ func (measurementReporter *STDOutMeasurementReporter) Report(locationToReport *L
 	return nil
 }
 
-func NewTwitterMeasurementReporter(consumerKey string, consumerSecret string) *TwitterMeasurementReporter {
-	config := &clientcredentials.Config{
-		ClientID:     consumerKey,
-		ClientSecret: consumerSecret,
-		TokenURL:     "https://api.twitter.com/oauth2/token",
-	}
-	httpClient := config.Client(oauth2.NoContext)
+func NewTwitterMeasurementReporter(twitterAuth *TwitterAuth) *TwitterMeasurementReporter {
+	config := oauth1.NewConfig(twitterAuth.ConsumerKey, twitterAuth.ConsumerSecret)
+	token := oauth1.NewToken(twitterAuth.AccessToken, twitterAuth.AccessSecret)
+	httpClient := config.Client(oauth1.NoContext, token)
 	client := twitter.NewClient(httpClient)
 	return &TwitterMeasurementReporter{client: client}
+}
+
+type TwitterAuth struct {
+	ConsumerKey    string
+	ConsumerSecret string
+	AccessToken    string
+	AccessSecret   string
 }
 
 type TwitterMeasurementReporter struct {

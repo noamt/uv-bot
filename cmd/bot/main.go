@@ -37,7 +37,23 @@ func main() {
 	if consumerSecret == "" {
 		log.Fatalln("A Twitter consumer secret is required. Please set the TWITTER_CONSUMER_SECRET env var")
 	}
-	measurementReporter := uv.NewTwitterMeasurementReporter(consumerKey, consumerSecret)
+
+	accessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
+	if accessToken == "" {
+		log.Fatalln("A Twitter access token is required. Please set the TWITTER_ACCESS_TOKEN env var")
+	}
+
+	accessSecret := os.Getenv("TWITTER_ACCESS_SECRET")
+	if accessSecret == "" {
+		log.Fatalln("A Twitter access secret is required. Please set the TWITTER_ACCESS_SECRET env var")
+	}
+	twitterAuth := &uv.TwitterAuth{
+		ConsumerKey:    consumerKey,
+		ConsumerSecret: consumerSecret,
+		AccessToken:    accessToken,
+		AccessSecret:   accessSecret,
+	}
+	measurementReporter := uv.NewTwitterMeasurementReporter(twitterAuth)
 	measurerAndReporter := uv.GetMeasureAndReportFunction(measurementProvider, measurementReporter)
 	measurementSettings := &uv.MeasurementSettings{ExitChan: exitChan, LoopInterval: 2 * time.Second, PollInterval: 2 * time.Minute}
 

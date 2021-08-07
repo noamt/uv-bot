@@ -4,5 +4,6 @@ go 1.16
 
 require (
 	github.com/dghubble/go-twitter v0.0.0-20210609183100-2fdbf421508e
-	golang.org/x/oauth2 v0.0.0-20210628180205-a41e5a781914
+	github.com/dghubble/oauth1 v0.7.0
+	github.com/stretchr/testify v1.4.0 // indirect
 )

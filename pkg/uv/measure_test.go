@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -300,15 +301,20 @@ func TestSTDOutMeasurementReporter(t *testing.T) {
 
 	var buf bytes.Buffer
 	io.Copy(&buf, r)
-	expectedResult := `The UV index in Tel-Aviv is 1.0. It's safe to go outside! 😎
-#uvindex #uvbot #telaviv
-The UV Index in Tel-Aviv is 4.0. Seek shade and lather up on that sun screen! 🌞
-#uvindex #uvbot #telaviv
-Hot dang! The UV Index in Tel-Aviv is 11.0. Stay indoors! 🔥
-#uvindex #uvbot #telaviv
-`
+	expectedLow := `The UV index in Tel-Aviv is 1.0. It's safe to go outside! 😎
+#uvindex #telaviv #uvbot_`
+	expectedMoedrate := `The UV Index in Tel-Aviv is 4.0. Seek shade and lather up on that sun screen! 🌞
+#uvindex #telaviv #uvbot_`
+	expectedHigh := `Hot dang! The UV Index in Tel-Aviv is 11.0. Stay indoors! 🔥
+#uvindex #telaviv #uvbot_`
 	got := buf.String()
-	if got != expectedResult {
-		t.Errorf("Expected %s but got %s", expectedResult, got)
+	if !strings.Contains(got, expectedLow) {
+		t.Errorf("Expected %s to contain %s", got, expectedLow)
+	}
+	if !strings.Contains(got, expectedMoedrate) {
+		t.Errorf("Expected %s to contain %s", got, expectedMoedrate)
+	}
+	if !strings.Contains(got, expectedHigh) {
+		t.Errorf("Expected %s to contain %s", got, expectedHigh)
 	}
 }

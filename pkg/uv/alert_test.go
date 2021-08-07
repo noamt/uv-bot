@@ -2,6 +2,7 @@ package uv_test
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/noamt/uv-bot/pkg/uv"
@@ -17,18 +18,18 @@ func TestAltertsByLocation(t *testing.T) {
 func TestTelAvivAlerts(t *testing.T) {
 	telAvivAlerts := &uv.TelAvivAlerts{}
 
-	expectedLow := "The UV index in Tel-Aviv is 1.1. It's safe to go outside! 😎\n#uvindex #uvbot #telaviv"
-	if telAvivAlerts.Low(1.1) != expectedLow {
-		t.Errorf("Expected %s but got %s", expectedLow, telAvivAlerts.Low(1.1))
+	expectedLow := "The UV index in Tel-Aviv is 1.1. It's safe to go outside! 😎\n#uvindex #telaviv #uvbot_"
+	if !strings.HasPrefix(telAvivAlerts.Low(1.1), expectedLow) {
+		t.Errorf("Expected %s to start with %s", telAvivAlerts.Low(1.1), expectedLow)
 	}
 
-	expectedModerate := "The UV Index in Tel-Aviv is 2.1. Seek shade and lather up on that sun screen! 🌞\n#uvindex #uvbot #telaviv"
-	if telAvivAlerts.Moderate(2.1) != expectedModerate {
-		t.Errorf("Expected %s but got %s", expectedModerate, telAvivAlerts.Moderate(2.1))
+	expectedModerate := "The UV Index in Tel-Aviv is 2.1. Seek shade and lather up on that sun screen! 🌞\n#uvindex #telaviv #uvbot_"
+	if !strings.HasPrefix(telAvivAlerts.Moderate(2.1), expectedModerate) {
+		t.Errorf("Expected %s to start with %s", telAvivAlerts.Moderate(2.1), expectedModerate)
 	}
 
-	expectedHigh := "Hot dang! The UV Index in Tel-Aviv is 3.2. Stay indoors! 🔥\n#uvindex #uvbot #telaviv"
-	if telAvivAlerts.High(3.21) != expectedHigh {
-		t.Errorf("Expected %s but got %s", expectedHigh, telAvivAlerts.High(3.21))
+	expectedHigh := "Hot dang! The UV Index in Tel-Aviv is 3.2. Stay indoors! 🔥\n#uvindex #telaviv #uvbot_"
+	if !strings.HasPrefix(telAvivAlerts.High(3.21), expectedHigh) {
+		t.Errorf("Expected %s to start with %s", telAvivAlerts.High(3.21), expectedHigh)
 	}
 }
